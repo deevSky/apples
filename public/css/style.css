@@ -1,0 +1,25 @@
+.apple {
+    width: 40px;
+    height: 40px;
+    border-style: solid;
+    border-radius: 50%;
+    border-width: 4px;
+    position: absolute;
+    border-left-color: #341005;
+    border-right-color: #341005;
+    border-bottom-color: #341005;
+    border-top-color: #341005;
+    cursor: pointer;
+    transform: rotate(-45deg);
+        /*background: linear-gradient(to right, red , yellow);*/
+}
+
+.hidden {
+    display: none;
+}
+
+.tree{
+    height: 100vh;
+    position: relative;
+}
+
