@@ -8,9 +8,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 </head>
 <body>
 
@@ -22,17 +25,19 @@
 
     <img class="tree" src="https://i.pinimg.com/originals/5b/7e/ca/5b7eca4d8d60e4666a5e70e317c79fc4.png" alt="">
 
-    <img style="width: 400px; height: 200px"
-         src="https://lh3.googleusercontent.com/proxy/hL_4vPlRiKxc_7Jqwaj1Q0uR5d_L5NnV7mCZ8EvReMFGYh-U95qhMXZyETC2AXC6o6FgNY9RN_4kQJlUL1wOFhAB2IYPXrCFxzYhxriGhlj3JCygsdFhrNxaGmgarZk"
-         alt="">
 
-    @foreach($apples as $apple)
+
+        @foreach($apples as $apple)
         <div id="dragId" class="draggable">
-            <span class="apple" id="{{ $apple->id }}" style="background: rgb({{ $apple->color }}); left: {{$apple->left}}px; top: {{ $apple->top }}px" type="button" onclick="edit({{ $apple->id }})" data-id="{{ $apple->id }}">
+            <span class="apple" id="{{ $apple->id }}"
+                  style="background: rgb({{ $apple->color }}); left: {{$apple->left}}px; top: {{ $apple->top }}px"
+                  type="button" onclick="edit({{ $apple->id }})" data-id="{{ $apple->id }}">
               {{ $apple->size }}
             </span>
         </div>
-    @endforeach
+        @endforeach
+
+
 </div>
 
 <script>
@@ -40,54 +45,56 @@
         $(".draggable").draggable();
     });
 
-    function edit($id) {
 
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    $creatingTime = "{{ $apple->created_at }}";
+    $result = $creatingTime.substring(14,16);
+    $dt = new Date();
+    $time = $dt.getMinutes();
+
+        function edit($id) {
+            if(($time-$result) >= 1){
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $url = "{{ action('AppleController@update', 'FUTURE_ID') }}";
+                $url = $url.replace("FUTURE_ID", $id);
+
+                $.ajax({
+                    type: 'POST',
+                    url: $url,
+                    success: function (response) {
+                        $('#' + $id).html((response['size']));
+
+                        if ((response['size']) == '75') {
+                            $('#' + $id).css("border-right-color", "transparent");
+                        }
+                        if ((response['size']) == '50') {
+                            $('#' + $id).css("border-right-color", "transparent");
+                            $('#' + $id).css("border-bottom-color", "transparent");
+                        }
+                        if ((response['size']) == '25') {
+                            $('#' + $id).css("border-right-color", "transparent");
+                            $('#' + $id).css("border-bottom-color", "transparent");
+                            $('#' + $id).css("border-left-color", "transparent");
+                        }
+                        if ((response['size']) == 0) {
+                            $('#' + $id).addClass('hidden');
+                        }
+
+                    },
+                    error: function (error) {
+                        alert('Error')
+                    }
+                });
+            }else{
+                alert("You can't it apple now, please wait !")
             }
-        });
 
-        $url = "{{ action('AppleController@update', 'FUTURE_ID') }}";
-        $url = $url.replace("FUTURE_ID", $id);
-
-        $.ajax({
-            type: 'POST',
-            url: $url,
-            success: function (response) {
-                $('#' + $id).html((response['size']));
-
-                if ((response['size']) == '75') {
-                    $('#' + $id).css("border-right-color", "transparent");
-                }
-                if ((response['size']) == '50') {
-                    $('#' + $id).css("border-right-color", "transparent");
-                    $('#' + $id).css("border-bottom-color", "transparent");
-                }
-                if ((response['size']) == '25') {
-                    $('#' + $id).css("border-right-color", "transparent");
-                    $('#' + $id).css("border-bottom-color", "transparent");
-                    $('#' + $id).css("border-left-color", "transparent");
-                }
-                if ((response['size']) == 0) {
-                    $('#' + $id).addClass('hidden');
-                }
-
-                {{--$aaa = "{{ $apple->status }}";--}}
-
-                {{--if ($aaa == 'On tree'){--}}
-                {{--    alert("You can't it on the tree!");--}}
-                {{--}--}}
-
-            },
-            error: function (error) {
-                alert('Error')
-            }
-        });
-    }
+        }
 
 </script>
-
-
 </body>
 </html>

@@ -9,13 +9,6 @@ use function MongoDB\BSON\toJSON;
 
 class AppleController extends Controller
 {
-
-    public $color;
-    public $created;
-    public $falled;
-    public $status;
-
-
     public function index()
     {
         $apples = Apple::all();
@@ -62,9 +55,14 @@ class AppleController extends Controller
     }
 
 
-    public function edit(Apple $apple)
+    public function change(Apple $apple)
     {
-        //
+        $apple->status = 'On ground';
+        $apple->save();
+
+        return [
+            'status' => 'On ground'
+        ];
     }
 
     public function update(Apple $apple)

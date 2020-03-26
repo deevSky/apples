@@ -10,8 +10,7 @@
     border-bottom-color: #341005;
     border-top-color: #341005;
     cursor: pointer;
-    transform: rotate(-45deg);
-        /*background: linear-gradient(to right, red , yellow);*/
+    transform: rotate(-45deg)
 }
 
 .hidden {
