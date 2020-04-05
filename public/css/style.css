@@ -1,3 +1,14 @@
+.tree {
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+
+.hidden {
+    display: none;
+}
+
 .apple {
     width: 40px;
     height: 40px;
@@ -10,15 +21,76 @@
     border-bottom-color: #341005;
     border-top-color: #341005;
     cursor: pointer;
-    transform: rotate(-45deg)
+    transform: rotate(-45deg);
+    z-index: 10;
 }
 
-.hidden {
+.appleSize {
+    transform: rotate(45deg);
+    display: inline-block;
+    padding: 2px;
+}
+
+.stayed75 {
+    border-right-color: transparent;
+}
+
+.stayed50 {
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+}
+
+.stayed25 {
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}
+
+
+.eat {
+    display: none;
+    margin-top: -20px;
+    transform: rotate(45deg);
+    min-width: 50px;
+}
+
+.down {
+    transform: rotate(45deg);
     display: none;
 }
 
-.tree{
-    height: 100vh;
-    position: relative;
+.timer {
+    display: none;
+    transform: rotate(45deg);
+    background: #4dc0b5;
+    width: 100px;
+}
+
+.apple_onTree:hover .timer {
+    display: block;
+}
+
+.apple_onTree:hover .down {
+    display: block;
+}
+
+.apple_onGround {
+    padding: 5px;
+}
+
+.apple_onGround:hover .down {
+    display: none;
+}
+
+.apple_onGround:hover .eat {
+    display: inline-block;
+}
+
+.apple_spoiled:hover .eat, .timer, .down {
+    display: none;
+}
+
+.apple_spoiled {
+    background-color: saddlebrown!important;
 }
 

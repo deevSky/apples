@@ -3,23 +3,46 @@
 namespace App\Http\Controllers;
 
 use App\Apple;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use function MongoDB\BSON\toJSON;
 
 class AppleController extends Controller
 {
-    public function index()
+
+    public $count;
+
+    public function __construct()
     {
         $apples = Apple::all();
+        $this->count = count($apples);
+    }
 
-        if (!$apples->count()){
-            $this->generate();
-            $apples = Apple::all();
+    public function index(Apple $apple)
+    {
+        $apples = Apple::where('size', '>', 0)->get();
+
+        foreach ($apples as $apple) {
+            $created = strtotime($apple->created_at);
+            $grown = strtotime($apple->grow_time);
+            $spoiled = strtotime($apple->spoil_time);
+            $now = strtotime(Carbon::now());
+            $diff1 = $grown - $created;
+            $diff2 = $spoiled - $created;
+//            dd($diff1);
+//            if ($now >= $grown) {
+//                $this->down($apple);
+//            }
+            if ($spoiled && $now >= $spoiled) {
+                $this->over($apple);
+            }
         }
 
-        return view('apples', [
+        return view('/apples', [
             'apples' => $apples,
+            'apple' => $apple,
+            'count' => $this->count,
+            'now' => $now
         ]);
     }
 
@@ -30,11 +53,15 @@ class AppleController extends Controller
         for ($i = 0; $i < rand(10, 20); $i++) {
             $apple = new Apple();
             $apple->size = 100;
-            $apple->top = rand(-600, -300);
+            $apple->created_at = Carbon::now()->addSeconds(rand(10, 60));
+            $apple->updated_at = Carbon::now()->addSeconds(rand(10, 60));
+            $apple->grow_time = ($apple->created_at)->addMinutes(1);
+//            $apple->spoil_time = Carbon::now()->addMinutes(2);
+            $apple->top = rand(100, 400);
             $apple->left = rand(60, 400);
             $apple->color = 255 . ',' . rand(0, 150) . ',' . rand(0, 5);
             $apple->save();
-    }
+        }
 
         $apples = Apple::all();
 
@@ -44,48 +71,64 @@ class AppleController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
-        //
-    }
-
-    public function show(Apple $apple)
-    {
-        //
-    }
-
-
-    public function change(Apple $apple)
-    {
-        $apple->status = 'On ground';
-        $apple->save();
-
-        return [
-            'status' => 'On ground'
-        ];
-    }
-
     public function update(Apple $apple)
     {
-        if (!$apple->size <= 0){
+        if (!$apple->size <= 0) {
             $apple->size = $apple->size - 25;
             $apple->save();
-        }else{
-            return [
-                'size' => 0,
-                'hidden' => true
-            ];
+
+            $apples = Apple::where('size', '>', 0)->get();
+            return redirect()->action('AppleController@index')->with([
+                'apples' => $apples,
+            ]);
+
         }
 
-        return [
-            'size' => $apple->size
-        ];
+
+//        if (!$apple->size <= 0){
+//            $apple->size = $apple->size - 25;
+//            $apple->save();
+//        }else{
+//            $apples = Apple::all();
+//
+//            return redirect()->action('AppleController@index')->with([
+//                'apples' => $apples,
+//            ]);
+//        }
+//
+//        return [
+//            'size' => $apple->size
+//        ];
     }
 
 
-    public function destroy(Apple $apple)
+    public function down(Apple $apple)
     {
-        //
+        $apple->top = 600;
+        $apple->status = 'onGround';
+        $apple->spoil_time = Carbon::now()->addMinutes(1);
+        $apple->save();
+
+        $apples = Apple::where('size', '>', 0)->get();
+
+        return redirect()->action('AppleController@index')->with([
+            'apples' => $apples,
+        ]);
     }
+
+
+    public function over(Apple $apple)
+    {
+        $apple->status = 'spoiled';
+        $apple->top = 600;
+        $apple->save();
+
+        $apples = Apple::where('size', '>', 0)->get();
+
+        return redirect()->action('AppleController@index')->with([
+            'apples' => $apples,
+        ]);
+    }
+
 }
 
